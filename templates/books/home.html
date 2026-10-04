@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="container">
+        <h1 class="hero-title">Welcome to Pastel Pages</h1>
+        <p class="hero-subtitle">Discover magical stories in our dreamy pastel wonderland</p>
+        <a href="{% url 'book_list' %}" class="btn btn-pastel btn-lg">Explore Dream Collection</a>
+    </div>
+</div>
+
+<!-- Best Sellers Section -->
+<section class="mb-5">
+    <h2 class="section-title" style="background: linear-gradient(135deg, #FF6B6B, #FF8E53); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🏆 Best Sellers 🔥</h2>
+    <div class="row">
+        {% for book in bestsellers %}
+        <div class="col-md-4 mb-4">
+            <div class="card pastel-card h-100 position-relative floating">
+                {% if book.cover_image %}
+                <img src="{{ book.cover_image.url }}" class="card-img-top book-cover" alt="{{ book.title }}">
+                {% else %}
+                <div class="card-img-top book-cover d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #A78BFA, #7E69AB);">
+                    <span class="display-1">📖</span>
+                </div>
+                {% endif %}
+                <span class="featured-badge" style="background: linear-gradient(135deg, #FF6B6B, #FF8E53); color: white; font-weight: bold;">🔥 Bestseller</span>
+                <div class="card-body">
+                    <h5 class="card-title" style="color: #5A4A6F;">{{ book.title }}</h5>
+                    <p class="card-text">by <a href="{% url 'author_books' book.author %}" style="color: #7E69AB; text-decoration: none; font-weight: bold;"><strong>{{ book.author }}</strong></a></p>
+                    
+                    <!-- Series Information -->
+                    {% if book.series_info %}
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <a href="{% url 'series_books' book.series.id %}" style="color: #7E69AB; text-decoration: none;">
+                                <i class="fas fa-book"></i> {{ book.series_info }}
+                            </a>
+                        </small>
+                    </p>
+                    {% endif %}
+                    
+                    <p class="card-text"><strong class="price-tag" style="color: #FF6B6B;">{{ book.price }} TND</strong></p>
+                    <a href="{% url 'book_detail' book.id %}" class="btn btn-pastel">Read More 🌈</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="pastel-card p-4">
+                <p class="text-muted mb-0">No bestsellers yet! Check back soon for our top picks! 📈</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="mb-5">
+    <h2 class="section-title" style="background: linear-gradient(135deg, #7E69AB, #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">📂 Categories</h2>
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-3 mb-4">
+            <a href="{% url 'category_books' category.id %}" class="category-card floating" style="background: linear-gradient(135deg, #7E69AB, #A78BFA); border: 2px solid #A78BFA; color: white; text-decoration: none;">
+                <div class="category-emoji">{{ category.emoji }}</div>
+                <h5 class="card-title" style="color: white;">{{ category.name }}</h5>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

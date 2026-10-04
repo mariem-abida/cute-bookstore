@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="pastel-card p-5 text-center floating">
+            <i class="fas fa-check-circle fa-4x mb-3" style="color: #6BCF7F;"></i>
+            <h2 style="background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                Successfully Logged Out! 🌈
+            </h2>
+            <p class="text-muted mb-4">You have been successfully logged out of Pastel Pages.</p>
+            <div class="d-grid gap-3">
+                <a href="{% url 'login' %}" class="btn btn-pastel btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Login Again
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-pastel btn-lg">
+                    <i class="fas fa-home"></i> Back to Homepage
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

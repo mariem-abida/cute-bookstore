@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="pastel-card p-4 text-center floating">
+            {% if book.cover_image %}
+            <img src="{{ book.cover_image.url }}" class="img-fluid rounded-3" alt="{{ book.title }}" style="max-height: 400px; object-fit: cover;">
+            {% else %}
+            <div class="d-flex align-items-center justify-content-center" style="height: 400px; background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-blue)); border-radius: 20px;">
+                <span class="display-1">📖</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="pastel-card p-4 floating">
+            <h1 class="display-5" style="background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">{{ book.title }}</h1>
+            <p class="lead">by <a href="{% url 'author_books' book.author %}" style="color: var(--pastel-purple); text-decoration: none;"><strong>{{ book.author }}</strong></a></p>
+            
+            <!-- Series Information -->
+            {% if book.series_info %}
+            <div class="mb-3">
+                <a href="{% url 'series_books' book.series.id %}" style="text-decoration: none;">
+                    <span class="badge" style="background: linear-gradient(135deg, #A78BFA, #7E69AB); color: white; padding: 8px 15px; border-radius: 15px; font-size: 1em; cursor: pointer;">
+                        📚 {{ book.series_info }}
+                    </span>
+                </a>
+            </div>
+            {% endif %}
+            
+            <div class="d-flex align-items-center mb-3">
+                <span class="price-tag me-3">{{ book.price }} TND</span>
+                <span class="badge" style="background: linear-gradient(135deg, var(--pastel-green), var(--pastel-blue)); color: var(--text-dark); padding: 8px 15px; border-radius: 15px;">
+                    {{ book.category.emoji }} {{ book.category.name }}
+                </span>
+            </div>
+
+            <!-- Stock Status -->
+            <div class="mb-4">
+                {% if book.quantity == 0 %}
+                <span class="badge" style="background: linear-gradient(135deg, #FF6B6B, #FF8E53); color: white; padding: 10px 20px; border-radius: 20px; font-size: 1.1em;">
+                    ❌ Out of Stock
+                </span>
+                {% elif book.quantity <= 5 %}
+                <span class="badge" style="background: linear-gradient(135deg, #FFD93D, #FF9A3D); color: var(--text-dark); padding: 10px 20px; border-radius: 20px; font-size: 1.1em;">
+                    ⚠️ Low Stock - Only {{ book.quantity }} left!
+                </span>
+                {% else %}
+                <span class="badge" style="background: linear-gradient(135deg, #6BCF7F, #4CAF50); color: white; padding: 10px 20px; border-radius: 20px; font-size: 1.1em;">
+                    ✅ In Stock - {{ book.quantity }} available
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <h4 style="color: var(--pastel-purple);">Description</h4>
+                <p class="fs-5">{{ book.description }}</p>
+            </div>
+            
+            {% if user.is_authenticated %}
+                {% if book.quantity > 0 %}
+                <form method="POST" action="{% url 'add_to_cart' book.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-pastel btn-lg">
+                        <i class="fas fa-shopping-bag"></i> Add to Dream Collection 🎀
+                    </button>
+                </form>
+                {% else %}
+                <button class="btn btn-pastel btn-lg" disabled style="background: linear-gradient(135deg, #CCCCCC, #999999);">
+                    <i class="fas fa-times-circle"></i> Out of Stock ❌
+                </button>
+                {% endif %}
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-pastel btn-lg">
+                Login to Add to Collection 🌈
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Other Books in Series Section -->
+{% if book.series %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="pastel-card p-4 floating">
+            <h3 style="background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                📚 Other Books in <a href="{% url 'series_books' book.series.id %}" style="color: inherit; text-decoration: none;">{{ book.series.name }}</a>
+            </h3>
+            <div class="row">
+                {% for series_book in book.series.book_set.all %}
+                    {% if series_book.id != book.id %}
+                    <div class="col-md-3 mb-3">
+                        <div class="pastel-card p-3 text-center">
+                            <h6>{{ series_book.title }}</h6>
+                            {% if series_book.series_order %}
+                            <small class="text-muted">Book {{ series_book.series_order }}</small>
+                            {% endif %}
+                            <p class="price-tag mb-2">{{ series_book.price }} TND</p>
+                            <a href="{% url 'book_detail' series_book.id %}" class="btn btn-pastel btn-sm">View</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No other books in this series yet.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Reviews Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="pastel-card p-4 floating">
+            <h3 style="background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                Reader Reviews ✨
+            </h3>
+            
+            {% if user.is_authenticated %}
+            <div class="pastel-card p-4 mb-4" style="background: rgba(255, 255, 255, 0.6);">
+                <h5 style="color: var(--pastel-purple);">Add Your Review</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label" style="color: var(--text-dark);">Rating</label>
+                        {{ form.rating }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="color: var(--text-dark);">Comment</label>
+                        {{ form.comment }}
+                    </div>
+                    <button type="submit" class="btn btn-pastel">Submit Review 🌟</button>
+                </form>
+            </div>
+            {% else %}
+            <div class="text-center py-3">
+                <a href="{% url 'login' %}" class="btn btn-pastel">Login to Add Review</a>
+            </div>
+            {% endif %}
+            
+            {% for review in reviews %}
+            <div class="pastel-card p-3 mb-3" style="background: rgba(255, 255, 255, 0.6);">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong style="color: var(--pastel-purple);">{{ review.user.username }}</strong>
+                    <span class="badge" style="background: linear-gradient(135deg, var(--pastel-yellow), var(--pastel-peach)); color: var(--text-dark); padding: 6px 12px; border-radius: 12px;">
+                        ⭐ {{ review.rating }}/5
+                    </span>
+                </div>
+                <p class="mb-2" style="color: var(--text-dark);">{{ review.comment }}</p>
+                <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+            </div>
+            {% empty %}
+            <div class="text-center py-4">
+                <i class="fas fa-star fa-2x mb-3" style="color: var(--pastel-yellow);"></i>
+                <p class="text-muted">No reviews yet. Be the first to share your thoughts! 🌟</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

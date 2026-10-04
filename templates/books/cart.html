@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero-section mb-5">
+    <div class="container">
+        <h1 class="hero-title">Your Dream Collection 🛒</h1>
+        <p class="hero-subtitle">All your favorite stories in one magical place</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if cart_items %}
+        <div class="table-pastel">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if item.book.cover_image %}
+                                <img src="{{ item.book.cover_image.url }}" 
+                                     alt="{{ item.book.title }}" 
+                                     style="width: 60px; height: 80px; object-fit: cover; border-radius: 10px; margin-right: 20px;">
+                                {% else %}
+                                <div style="width: 60px; height: 80px; background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-blue)); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 20px;">
+                                    📖
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <strong style="color: var(--text-dark);">{{ item.book.title }}</strong><br>
+                                    <small style="color: var(--pastel-purple);">by <a href="{% url 'author_books' item.book.author %}" style="color: var(--pastel-purple); text-decoration: none;">{{ item.book.author }}</a></small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="price-tag">{{ item.book.price }} TND</td>
+                        <td>
+                            <form method="POST" action="{% url 'update_cart_item' item.id %}" class="d-flex align-items-center">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" 
+                                       min="1" class="form-control search-bar" style="width: 80px;">
+                                <button type="submit" class="btn btn-pastel btn-sm ms-2">Update</button>
+                            </form>
+                        </td>
+                        <td class="price-tag">{{ item.total_price }} TND</td>
+                        <td>
+                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash"></i> Remove
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end"><strong style="color: var(--text-dark);">Total</strong></td>
+                        <td colspan="2" class="price-tag"><strong>{{ cart.total_price }} TND</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4">
+            <a href="{% url 'book_list' %}" class="btn btn-pastel">
+                <i class="fas fa-arrow-left"></i> Continue Exploring
+            </a>
+            <div>
+                <a href="{% url 'clear_cart' %}" class="btn btn-outline-danger me-3">
+                    <i class="fas fa-broom"></i> Clear Cart
+                </a>
+                <button class="btn btn-pastel">
+                    <i class="fas fa-check"></i> Proceed to Checkout 🌈
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="pastel-card p-5 floating">
+                <i class="fas fa-shopping-bag fa-3x mb-3" style="color: var(--pastel-purple);"></i>
+                <h3 style="color: var(--text-dark);">Your cart is empty! 🎀</h3>
+                <p class="text-muted">Discover our magical collection and add some dreamy books to your cart.</p>
+                <a href="{% url 'book_list' %}" class="btn btn-pastel btn-lg">Explore Dream Collection</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
